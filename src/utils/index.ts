@@ -12,3 +12,4 @@ export * from "./textual-filter";
 export * from "./username";
 export * from "./log";
 export * from "./gphotos";
+export * from "./promiseall";

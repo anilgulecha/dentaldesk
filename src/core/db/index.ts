@@ -1,6 +1,6 @@
 import { documentTransformation } from "./transform";
 import { status } from "@core";
-import { store, username } from "@utils";
+import { store, username, PromiseAllWithDelay } from "@utils";
 import * as utils from "@utils";
 import { Md5 } from "ts-md5";
 
@@ -39,7 +39,7 @@ export async function dbAction(
 				await singleAction();
 			}
 		} else {
-			await Promise.all(
+			await PromiseAllWithDelay(
 				methods[action].map(async (func, index) => {
 					try {
 						await func();
@@ -111,7 +111,7 @@ export async function genRemoteInstance<S = any>(dbName: string) {
 	return remoteTransformations(
 		new PouchDB<S>(`${status.server}/${remoteName}`, {
 			revs_limit: 2,
-			auto_compaction: true,
+			/*auto_compaction: true,*/
 			fetch: (url, opts) => {
 				return PouchDB.fetch(url, {
 					...opts,
@@ -199,7 +199,11 @@ export async function connect<S>(dbName: string, defaults: any) {
 	methods.compact[refI] = async () => {
 		await localDatabase.compact();
 		if (remoteDatabase) {
-			await remoteDatabase.compact();
+			// try {
+			// 	await remoteDatabase.compact();
+			// } catch {
+			// 	console.log("Compaction error.")
+			// }
 		}
 	};
 	await removeConflicts(localDatabase);

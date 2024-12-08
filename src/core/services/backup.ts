@@ -1,7 +1,7 @@
 import { DBNames, methods } from "../db/index";
 import * as core from "@core";
 import { genLocalInstance, genRemoteInstance, UploadedFile } from "@core";
-import { decode, generateID, store } from "@utils";
+import { decode, generateID, store, PromiseAllWithDelay } from "@utils";
 import { compressToUTF16, decompressFromUTF16 } from "lz-string";
 export const backupsExtension = "apx";
 export interface DatabaseDump {
@@ -148,22 +148,22 @@ export const restore = {
 					downloadingTasks.length
 			);
 			view.msg("Starting: uploading new data");
-			await Promise.all(uploadingTasks.map((x) => x()));
+			await PromiseAllWithDelay(uploadingTasks.map((x) => x()), 2000);
 			view.msg("Finished: uploading new data", true);
 			view.msg("Starting: destroying local old data");
 			await core.dbAction("destroy");
 			view.msg("Finished: destroying local old data", true);
 			view.msg("Starting: destroying remote old data");
-			await Promise.all(destroyingRemoteTasks.map((x) => x()));
+			await PromiseAllWithDelay(destroyingRemoteTasks.map((x) => x()), 2000);
 			view.msg("Finished: destroying remote old data", true);
 			view.msg("Starting: renaming databases");
-			await Promise.all(replicationTasks.map((x) => x()));
+			await PromiseAllWithDelay(replicationTasks.map((x) => x()), 2000);
 			view.msg("Finished: renaming databases", true);
 			view.msg("Starting: destroying temporary data");
-			await Promise.all(destroyingTempTasks.map((x) => x()));
+			await PromiseAllWithDelay(destroyingTempTasks.map((x) => x()), 2000);
 			view.msg("Finished: destroying temporary data", true);
 			view.msg("Starting: downloading new data");
-			await Promise.all(downloadingTasks.map((x) => x()));
+			await PromiseAllWithDelay(downloadingTasks.map((x) => x()), 2000);
 			view.msg("Finished: downloading new data", true);
 			view.msg("All done! you can reload the application now", true);
 			view.done();
